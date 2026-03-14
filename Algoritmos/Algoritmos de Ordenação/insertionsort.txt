@@ -1,0 +1,19 @@
+/* 
+
+    PSEUDOCÓDIGO PARA A DISCIPLINA DE ALGORITMOS E ESTRUTURA DE DADOS II
+
+*/
+
+// numbers -> array de inteiros, n -> tamanho do array
+procedimento insertionSort(numbers, n) {
+    para i = 2 até n
+        inteiro valorAtual = numbers[i]
+        inteiro j = i - 1
+        
+        enquanto j > 0 && numbers[j] > valorAtual {
+            numbers[j + 1] = numbers[j]
+            j = j - 1
+        }   
+            
+        numbers[j + 1] = valorAtual
+}

@@ -10,13 +10,13 @@ class Matriz{
 
         for(int i=0; i<linhas; i++){
             for(int j=0; j<colunas; j++){
-                matriz[linhas][colunas] = sc.nextInt();
+                matriz[i][j] = sc.nextInt();
             }
         }
 
         for(int i=0; i<linhas; i++){
             for(int j=0; j<colunas; j++){
-                System.out.println(matriz[linhas][colunas]);
+                System.out.println(matriz[i][j]);
             }
         }
         sc.close();

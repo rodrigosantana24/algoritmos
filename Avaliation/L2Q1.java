@@ -2,6 +2,7 @@ import java.util.Scanner;
 
 public class L2Q1 {
 
+    // dados -> ListSeqOrd, n -> tamanho do vetor, M -> tamanho máximo 
     static class ListaSeqOrd {
         private int[] dados;
         private int n;

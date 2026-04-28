@@ -89,6 +89,7 @@ public class L2Q1 {
     public static void main(String[] args) {
         Scanner scanner = new Scanner(System.in);
 
+        System.out.print("Insira a capacidade total do vetor: ");
         int m = scanner.nextInt();
 
         while (m <= 0) {

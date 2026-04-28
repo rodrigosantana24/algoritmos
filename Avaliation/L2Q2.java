@@ -1,10 +1,10 @@
 import java.util.Scanner;
 
 public class L2Q2 {
+    
+    static int chamadasTotal = 0;
 
-    static int totalChamadasMergeSort = 0;
-
-    public static void imprimirVetor(int[] vetor, int tamanho) {
+    public static void imprimir(int[] vetor, int tamanho) {
         int i = 0;
         while (i < tamanho) {
             if (i > 0) {
@@ -64,11 +64,11 @@ public class L2Q2 {
             k = k + 1;
         }
 
-        imprimirVetor(vetor, tamanhoTotal);
+        imprimir(vetor, tamanhoTotal);
     }
 
     public static void mergesort(int[] vetor, int p, int r, int tamanhoTotal) {
-        totalChamadasMergeSort = totalChamadasMergeSort + 1;
+        chamadasTotal = chamadasTotal + 1;
         System.out.println("mergesort " + p + " " + r + ": empilhado!");
 
         if (p < r) {
@@ -78,7 +78,7 @@ public class L2Q2 {
             merge(vetor, p, q, r, tamanhoTotal);
         }
 
-        System.out.println("mergesort " + p + " " + r + ": dsempilhado!");
+        System.out.println("mergesort " + p + " " + r + ": desempilhado!");
     }
 
     public static void main(String[] args) {
@@ -93,14 +93,13 @@ public class L2Q2 {
             i = i + 1;
         }
 
-        imprimirVetor(vetor, m);
+        imprimir(vetor, m);
 
         if (m > 0) {
             mergesort(vetor, 0, m - 1, m);
         }
 
-        System.out.println("Total de chamadas ao mergesort: " + totalChamadasMergeSort);
-
+        System.out.println("Total de chamadas ao mergesort: " + chamadasTotal);
         scanner.close();
     }
 }

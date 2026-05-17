@@ -37,15 +37,12 @@ public class P01 {
                 return;
             }
 
-            int novaCapacidade = dados.length * 2;
-            Lutador[] novoArray = new Lutador[novaCapacidade];
-
+            Lutador[] novoArray = new Lutador[dados.length * 2];
             int i = 0;
             while (i < tamanho) {
                 novoArray[i] = dados[i];
                 i = i + 1;
             }
-
             dados = novoArray;
         }
 
@@ -57,6 +54,12 @@ public class P01 {
             return dados[indice];
         }
 
+        void inserirNoFim(Lutador lutador) {
+            garantirCapacidade();
+            dados[tamanho] = lutador;
+            tamanho = tamanho + 1;
+        }
+
         boolean contemId(String identificador) {
             int i = 0;
             while (i < tamanho) {
@@ -66,24 +69,6 @@ public class P01 {
                 i = i + 1;
             }
             return false;
-        }
-
-        void inserirOrdenadoPorIniciativaDesc(Lutador lutador) {
-            garantirCapacidade();
-
-            int posicaoInsercao = 0;
-            while (posicaoInsercao < tamanho && dados[posicaoInsercao].iniciativaBase >= lutador.iniciativaBase) {
-                posicaoInsercao = posicaoInsercao + 1;
-            }
-
-            int i = tamanho;
-            while (i > posicaoInsercao) {
-                dados[i] = dados[i - 1];
-                i = i - 1;
-            }
-
-            dados[posicaoInsercao] = lutador;
-            tamanho = tamanho + 1;
         }
 
         Lutador removerPorId(String identificador) {
@@ -111,16 +96,91 @@ public class P01 {
 
         private Lutador removerPorIndice(int indice) {
             Lutador removido = dados[indice];
-
             int i = indice;
             while (i < tamanho - 1) {
                 dados[i] = dados[i + 1];
                 i = i + 1;
             }
-
             dados[tamanho - 1] = null;
             tamanho = tamanho - 1;
             return removido;
+        }
+
+        Lutador[] copiarParaArray() {
+            Lutador[] copia = new Lutador[tamanho];
+            int i = 0;
+            while (i < tamanho) {
+                copia[i] = dados[i];
+                i = i + 1;
+            }
+            return copia;
+        }
+    }
+
+    static class ListaEncadeadaLutadores {
+        static class No {
+            Lutador valor;
+            No proximo;
+
+            No(Lutador valor) {
+                this.valor = valor;
+                this.proximo = null;
+            }
+        }
+
+        private No inicio;
+        private int tamanho;
+
+        ListaEncadeadaLutadores() {
+            this.inicio = null;
+            this.tamanho = 0;
+        }
+
+        int tamanho() {
+            return tamanho;
+        }
+
+        boolean contemId(String identificador) {
+            No atual = inicio;
+            while (atual != null) {
+                if (atual.valor.identificador.equals(identificador)) {
+                    return true;
+                }
+                atual = atual.proximo;
+            }
+            return false;
+        }
+
+        void inserirOrdenadoPorIniciativaDesc(Lutador lutador) {
+            No novo = new No(lutador);
+
+            if (inicio == null || lutador.iniciativaBase > inicio.valor.iniciativaBase) {
+                novo.proximo = inicio;
+                inicio = novo;
+                tamanho = tamanho + 1;
+                return;
+            }
+
+            No atual = inicio;
+            while (atual.proximo != null && atual.proximo.valor.iniciativaBase >= lutador.iniciativaBase) {
+                atual = atual.proximo;
+            }
+
+            novo.proximo = atual.proximo;
+            atual.proximo = novo;
+            tamanho = tamanho + 1;
+        }
+
+        Lutador[] copiarParaArray() {
+            Lutador[] array = new Lutador[tamanho];
+            No atual = inicio;
+            int i = 0;
+            while (atual != null) {
+                array[i] = atual.valor;
+                atual = atual.proximo;
+                i = i + 1;
+            }
+            return array;
         }
     }
 
@@ -131,10 +191,10 @@ public class P01 {
         private int quantidade;
 
         FilaLutadores(int capacidadeInicial) {
-            if (capacidadeInicial < 1) {
-                capacidadeInicial = 1;
+            if (capacidadeInicial < 2) {
+                capacidadeInicial = 2;
             }
-            this.dados = new Lutador[capacidadeInicial + 1];
+            this.dados = new Lutador[capacidadeInicial];
             this.inicio = 0;
             this.fim = 0;
             this.quantidade = 0;
@@ -150,7 +210,6 @@ public class P01 {
 
         private void expandir() {
             Lutador[] novoArray = new Lutador[dados.length * 2];
-
             int i = 0;
             int indice = inicio;
             while (i < quantidade) {
@@ -158,7 +217,6 @@ public class P01 {
                 indice = proximoIndice(indice);
                 i = i + 1;
             }
-
             dados = novoArray;
             inicio = 0;
             fim = quantidade;
@@ -168,7 +226,6 @@ public class P01 {
             if (quantidade == dados.length - 1) {
                 expandir();
             }
-
             dados[fim] = lutador;
             fim = proximoIndice(fim);
             quantidade = quantidade + 1;
@@ -179,11 +236,11 @@ public class P01 {
                 return null;
             }
 
-            Lutador lutador = dados[inicio];
+            Lutador removido = dados[inicio];
             dados[inicio] = null;
             inicio = proximoIndice(inicio);
             quantidade = quantidade - 1;
-            return lutador;
+            return removido;
         }
 
         boolean estaVazia() {
@@ -195,19 +252,164 @@ public class P01 {
         }
     }
 
+    static class AlgoritmosOrdenacao {
+
+        private static void trocar(Lutador[] vetor, int i, int j) {
+            Lutador aux = vetor[i];
+            vetor[i] = vetor[j];
+            vetor[j] = aux;
+        }
+
+        static void mergeSortDecrescente(Lutador[] vetor, int tamanho) {
+            if (tamanho <= 1) {
+                return;
+            }
+            Lutador[] auxiliar = new Lutador[tamanho];
+            mergeSortRec(vetor, auxiliar, 0, tamanho - 1);
+        }
+
+        private static void mergeSortRec(Lutador[] vetor, Lutador[] auxiliar, int esquerda, int direita) {
+            if (esquerda >= direita) {
+                return;
+            }
+
+            int meio = (esquerda + direita) / 2;
+            mergeSortRec(vetor, auxiliar, esquerda, meio);
+            mergeSortRec(vetor, auxiliar, meio + 1, direita);
+            merge(vetor, auxiliar, esquerda, meio, direita);
+        }
+
+        private static void merge(Lutador[] vetor, Lutador[] auxiliar, int esquerda, int meio, int direita) {
+            int i = esquerda;
+            int j = meio + 1;
+            int k = esquerda;
+
+            while (i <= meio && j <= direita) {
+                if (vetor[i].iniciativaBase >= vetor[j].iniciativaBase) {
+                    auxiliar[k] = vetor[i];
+                    i = i + 1;
+                } else {
+                    auxiliar[k] = vetor[j];
+                    j = j + 1;
+                }
+                k = k + 1;
+            }
+
+            while (i <= meio) {
+                auxiliar[k] = vetor[i];
+                i = i + 1;
+                k = k + 1;
+            }
+
+            while (j <= direita) {
+                auxiliar[k] = vetor[j];
+                j = j + 1;
+                k = k + 1;
+            }
+
+            int pos = esquerda;
+            while (pos <= direita) {
+                vetor[pos] = auxiliar[pos];
+                pos = pos + 1;
+            }
+        }
+
+        static void quickSortDecrescente(Lutador[] vetor, int tamanho) {
+            if (tamanho <= 1) {
+                return;
+            }
+            quickSortRec(vetor, 0, tamanho - 1);
+        }
+
+        private static void quickSortRec(Lutador[] vetor, int esquerda, int direita) {
+            if (esquerda < direita) {
+                int pivo = particionar(vetor, esquerda, direita);
+                quickSortRec(vetor, esquerda, pivo - 1);
+                quickSortRec(vetor, pivo + 1, direita);
+            }
+        }
+
+        private static int particionar(Lutador[] vetor, int esquerda, int direita) {
+            int iniciativaPivo = vetor[direita].iniciativaBase;
+            int i = esquerda - 1;
+            int j = esquerda;
+
+            while (j <= direita - 1) {
+                if (vetor[j].iniciativaBase >= iniciativaPivo) {
+                    i = i + 1;
+                    trocar(vetor, i, j);
+                }
+                j = j + 1;
+            }
+
+            trocar(vetor, i + 1, direita);
+            return i + 1;
+        }
+
+        static void heapSortDecrescente(Lutador[] vetor, int tamanho) {
+            if (tamanho <= 1) {
+                return;
+            }
+
+            int i = (tamanho / 2) - 1;
+            while (i >= 0) {
+                minHeapify(vetor, i, tamanho);
+                i = i - 1;
+            }
+
+            int fim = tamanho - 1;
+            while (fim >= 1) {
+                trocar(vetor, 0, fim);
+                minHeapify(vetor, 0, fim);
+                fim = fim - 1;
+            }
+        }
+
+        private static void minHeapify(Lutador[] vetor, int indice, int tamanhoHeap) {
+            int menor = indice;
+            int esquerdo = (2 * indice) + 1;
+            int direito = (2 * indice) + 2;
+
+            if (esquerdo < tamanhoHeap && vetor[esquerdo].iniciativaBase < vetor[menor].iniciativaBase) {
+                menor = esquerdo;
+            }
+
+            if (direito < tamanhoHeap && vetor[direito].iniciativaBase < vetor[menor].iniciativaBase) {
+                menor = direito;
+            }
+
+            if (menor != indice) {
+                trocar(vetor, indice, menor);
+                minHeapify(vetor, menor, tamanhoHeap);
+            }
+        }
+    }
+
     static class Time {
         private int numero;
         private ListaLutadores vivos;
-        private ListaLutadores mortos;
+        private ListaEncadeadaLutadores mortos;
 
         Time(int numero, int capacidadeInicial) {
             this.numero = numero;
             this.vivos = new ListaLutadores(capacidadeInicial);
-            this.mortos = new ListaLutadores(capacidadeInicial);
+            this.mortos = new ListaEncadeadaLutadores();
         }
 
         int getNumero() {
             return numero;
+        }
+
+        boolean contemId(String identificador) {
+            return vivos.contemId(identificador) || mortos.contemId(identificador);
+        }
+
+        void inserirLutadorVivo(Lutador lutador) {
+            vivos.inserirNoFim(lutador);
+        }
+
+        Lutador removerVivoPorId(String identificador) {
+            return vivos.removerPorId(identificador);
         }
 
         int quantidadeVivos() {
@@ -216,18 +418,6 @@ public class P01 {
 
         int quantidadeMortos() {
             return mortos.tamanho();
-        }
-
-        boolean contemId(String identificador) {
-            return vivos.contemId(identificador) || mortos.contemId(identificador);
-        }
-
-        void inserirLutadorVivo(Lutador lutador) {
-            vivos.inserirOrdenadoPorIniciativaDesc(lutador);
-        }
-
-        Lutador removerVivoPorId(String identificador) {
-            return vivos.removerPorId(identificador);
         }
 
         void registrarMorte(Lutador lutador) {
@@ -243,15 +433,16 @@ public class P01 {
             }
         }
 
-        FilaLutadores criarFilaDeCombate() {
-            FilaLutadores fila = new FilaLutadores(vivos.tamanho() + 1);
+        FilaLutadores criarFilaCombateOrdenada() {
+            Lutador[] ordenados = vivos.copiarParaArray();
+            AlgoritmosOrdenacao.heapSortDecrescente(ordenados, ordenados.length);
 
+            FilaLutadores fila = new FilaLutadores(ordenados.length + 1);
             int i = 0;
-            while (i < vivos.tamanho()) {
-                fila.enfileirar(vivos.obter(i));
+            while (i < ordenados.length) {
+                fila.enfileirar(ordenados[i]);
                 i = i + 1;
             }
-
             return fila;
         }
 
@@ -260,25 +451,31 @@ public class P01 {
             System.out.println("Lutadores vivos: " + vivos.tamanho());
             System.out.println("Lutadores mortos: " + mortos.tamanho());
 
+            Lutador[] vivosOrdenados = vivos.copiarParaArray();
+            AlgoritmosOrdenacao.mergeSortDecrescente(vivosOrdenados, vivosOrdenados.length);
+
+            Lutador[] mortosOrdenados = mortos.copiarParaArray();
+            AlgoritmosOrdenacao.quickSortDecrescente(mortosOrdenados, mortosOrdenados.length);
+
             System.out.println("Vivos (ID, iniciativa, vida):");
-            if (vivos.tamanho() == 0) {
+            if (vivosOrdenados.length == 0) {
                 System.out.println("NENHUM");
             } else {
                 int i = 0;
-                while (i < vivos.tamanho()) {
-                    Lutador lutador = vivos.obter(i);
+                while (i < vivosOrdenados.length) {
+                    Lutador lutador = vivosOrdenados[i];
                     System.out.println(lutador.identificador + " " + lutador.iniciativaBase + " " + lutador.pontosVida);
                     i = i + 1;
                 }
             }
 
             System.out.println("Mortos (ID, iniciativa, vida):");
-            if (mortos.tamanho() == 0) {
+            if (mortosOrdenados.length == 0) {
                 System.out.println("NENHUM");
             } else {
                 int i = 0;
-                while (i < mortos.tamanho()) {
-                    Lutador lutador = mortos.obter(i);
+                while (i < mortosOrdenados.length) {
+                    Lutador lutador = mortosOrdenados[i];
                     System.out.println(lutador.identificador + " " + lutador.iniciativaBase + " " + lutador.pontosVida);
                     i = i + 1;
                 }
@@ -428,8 +625,8 @@ public class P01 {
             time1.resetarAtaquesDoTurno();
             time2.resetarAtaquesDoTurno();
 
-            FilaLutadores filaTime1 = time1.criarFilaDeCombate();
-            FilaLutadores filaTime2 = time2.criarFilaDeCombate();
+            FilaLutadores filaTime1 = time1.criarFilaCombateOrdenada();
+            FilaLutadores filaTime2 = time2.criarFilaCombateOrdenada();
 
             int totalInicialTime1 = filaTime1.quantidade();
             int totalInicialTime2 = filaTime2.quantidade();
